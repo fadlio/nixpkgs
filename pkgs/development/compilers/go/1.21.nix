@@ -13,14 +13,14 @@
 , threadsCross
 , testers
 , skopeo
-, buildGo120Module
+, buildGo121Module
 }:
 
 let
   useGccGoBootstrap = stdenv.buildPlatform.isMusl || stdenv.buildPlatform.isRiscV;
   goBootstrap = if useGccGoBootstrap then buildPackages.gccgo12 else buildPackages.callPackage ./bootstrap117.nix { };
 
-  skopeoTest = skopeo.override { buildGoModule = buildGo120Module; };
+  skopeoTest = skopeo.override { buildGoModule = buildGo121Module; };
 
   goarch = platform: {
     "aarch64" = "arm64";
@@ -46,11 +46,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "go";
-  version = "1.20.7";
+  version = "1.21.0";
 
   src = fetchurl {
     url = "https://go.dev/dl/go${version}.src.tar.gz";
-    hash = "sha256-LF7pyeweczsNu8K9/tP2IwblHYFyvzj09OVCsnUg9Zc=";
+    hash = "sha256-gY1G7ehWgt1VGtN47zek0kcAbxLsWbW3VWAdLOEUNpo=";
   };
 
   strictDeps = true;
@@ -86,7 +86,7 @@ stdenv.mkDerivation rec {
       inherit tzdata;
     })
     ./remove-tools-1.11.patch
-    ./go_no_vendor_checks-1.16.patch
+    ./go_no_vendor_checks-1.21.patch
   ];
 
   GOOS = stdenv.targetPlatform.parsed.kernel.name;
@@ -158,7 +158,8 @@ stdenv.mkDerivation rec {
     runHook preInstall
     mkdir -p $GOROOT_FINAL
     cp -a bin pkg src lib misc api doc $GOROOT_FINAL
-    ln -s $GOROOT_FINAL/bin $out/bin
+    mkdir -p $out/bin
+    ln -s $GOROOT_FINAL/bin/* $out/bin
     runHook postInstall
   '';
 
